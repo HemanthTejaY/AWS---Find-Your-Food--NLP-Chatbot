@@ -9,25 +9,43 @@ from io import BytesIO
 def lambda_handler(event, context):
     """
     This lambda function calls the yelp api to fetch restaurants in DynamoDB table 
-    yelp-restaurants and indexes it in elastic search.
+    yelp-restaurants and indexes it in elastic search service.
     """
     resultData = []
+    yelp_limit = 50
+    # Supported Cuisines
     cuisines = ['indian', 'mexican', 'chinese', 'thai', 'japanese']
     # Change this location to New York, Manhattan.
-    location = "manhattan"
+    locations = ["manhattan", "new york"]
     if event['data_origin'] == 'yelp':
-        restaurantIterations = 8
+        restaurantIterations = 1
         for cuisine in cuisines:
-            
             for i in range(restaurantIterations):
-                requestData = {
+                for loc in locations:
+                    requestData = {
                                 "term": cuisine + " restaurants",
-                                "location": location,
-                                "limit": 50,
+                                "location": loc,
+                                "limit": yelp_limit,
                                 "offset": 50*i
+                                #"peoplenum": num_people,
+                                #"Date": date,
+                                #"Time": given_time,
+                                #"EmailId": emailId
                             }
-                result = get_yelp(requestData)
-                resultData = resultData + result
+                    yelp_rest_endpoint = "https://api.yelp.com/v3/businesses/search"
+    
+                    querystring = requestData
+    
+                    payload = ""
+                    headers = {
+                        "Authorization": "Bearer GALd5l4Y7ID64YGczovQg-obqcnq0qGJci9p5aykkGllZsx9vxSeyMqKThSiHFjrH1OhIoAbgDfD2laMks0hJhmS9I994PPnPy1oF4PB8pbQ0IveYXOv8W4BK6ueXXYx",
+                        'cache-control': "no-cache"
+                    }
+    
+                    response = requests.request("GET", yelp_rest_endpoint, data=payload, headers=headers, params=querystring)
+                    message = json.loads(response.text)
+                    result = message['businesses']
+                    resultData = resultData + result
         
         # Add data to DynamodDB
         dynamoInsert(resultData)
@@ -39,25 +57,6 @@ def lambda_handler(event, context):
         'statusCode': 200,
         'body': json.dumps('success')
     }
-
-def get_yelp(requestData):
-    
-    yelp_rest_endpoint = "https://api.yelp.com/v3/businesses/search"
-    
-    querystring = requestData
-    
-    payload = ""
-    headers = {
-        "Authorization": "Bearer GALd5l4Y7ID64YGczovQg-obqcnq0qGJci9p5aykkGllZsx9vxSeyMqKThSiHFjrH1OhIoAbgDfD2laMks0hJhmS9I994PPnPy1oF4PB8pbQ0IveYXOv8W4BK6ueXXYx"
-        }
-    
-    response = requests.request("GET", yelp_rest_endpoint, data=payload, headers=headers, params=querystring)
-    message = json.loads(response.text)
-    
-    if len(message['businesses']) <= 0:
-        return []
-    
-    return message['businesses']
 
 def dynamoInsert(restaurants):
     
@@ -77,6 +76,15 @@ def dynamoInsert(restaurants):
             'review_count': int(restaurant['review_count']),
             'address': restaurant['location']['display_address']
         }        
+
+        if (restaurant['coordinates'] and restaurant['coordinates']['latitude'] and restaurant['coordinates']['longitude']):
+            tableEntry['latitude'] = str(restaurant['coordinates']['latitude'])
+            tableEntry['longitude'] = str(restaurant['coordinates']['longitude'])
+
+        if (restaurant['location']['zip_code']):
+            tableEntry['zip_code'] = restaurant['location']['zip_code']
+
+        # Add necessary attributes to the yelp-restaurants table
         table.put_item(
             Item={
                 'insertedAtTimestamp': str(datetime.datetime.now()),
@@ -92,7 +100,7 @@ def dynamoInsert(restaurants):
                }
             )
     
-
+# Add elastic search indeices after DB has been added
 def addElasticIndex(restaurants):
     host = 'search-restaurants-bpoued5hlvrv4fn74iuqwi7i7y.us-east-1.es.amazonaws.com' 
     es = Elasticsearch(
