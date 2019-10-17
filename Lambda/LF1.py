@@ -108,7 +108,7 @@ def validateIntentSlots(location, cuisine, num_people, date, given_time, email):
     """
 
 
-    locations = ['chicago', 'new york', 'manhattan', 'los angeles', 'la']
+    locations = ['new york', 'manhattan']
     if location is not None and location.lower() not in locations:
         return build_validation_result(False,
                                        'location',
@@ -122,7 +122,7 @@ def validateIntentSlots(location, cuisine, num_people, date, given_time, email):
                                        
     if num_people is not None:
         num_people = int(num_people)
-        if num_people > 20 or num_people < 0:
+        if num_people > 20 or num_people <= 0:
             return build_validation_result(False,
                                       'num_people',
                                       'Number of people can only be between 0 and 20')
@@ -166,6 +166,21 @@ def dining_suggestion_intent(intent_request):
     given_time = get_slots(intent_request)["given_time"]
     emailId = get_slots(intent_request)["email"]
     session_attributes = intent_request['sessionAttributes'] if intent_request['sessionAttributes'] is not None else {}
+
+    requestData = {
+                    "cuisine": cuisine,
+                    "location":location,
+                    "categories":cuisine,
+                    "limit":"3",
+                    "peoplenum": num_people,
+                    "Date": date,
+                    "Time": given_time,
+                    "EmailId": emailId
+                }
+                
+    print (requestData)
+
+    session_attributes['requestData'] = json.dumps(requestData)
     
     if intent_request['invocationSource'] == 'DialogCodeHook':
         slots = get_slots(intent_request)
@@ -180,20 +195,7 @@ def dining_suggestion_intent(intent_request):
                                slots,
                                validation_result['violatedSlot'],
                                validation_result['message'])
-    
-        
-    requestData = {
-                    "cuisine": cuisine,
-                    "location":location,
-                    "categories":cuisine,
-                    "limit":"3",
-                    "peoplenum": num_people,
-                    "Date": date,
-                    "Time": given_time,
-                    "EmailId": emailId
-                }
-                
-    print (requestData)
+        return delegate(session_attributes, intent_request['currentIntent']['slots'])
     
     messageId = sendSQSMessage(requestData)
     print (messageId)
