@@ -15,6 +15,11 @@ This chatbot can help you provide restaurant suggestions based on your requireme
 ## SAMPLE UI OF THE WEB APPLICATION
 ![alt text](https://github.com/HemanthTejaY/Find-Your-Food---Dining-Concirerge/blob/master/github-images/final_UI.JPG)
 
+
+## SAMPLE OUTPUT - The user recieves an email of the suggestions :- 
+![alt text](https://github.com/HemanthTejaY/Find-Your-Food--Dining-Concirerge/blob/master/github-images/the-bot.jpg)
+
+ 
 ## FRONTEND (HTML, JavaScript, CSS)
 The frontend is hosted in AWS S3 and provides a web-app user interface to interact with the chat bot.Many  open source libraries and frameworks were used to design the UI/UX of the bot. A similar template of my web-application can be found at: https://bootsnipp.com/snippets/exR5v
 
