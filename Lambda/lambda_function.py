@@ -18,7 +18,7 @@ def lambda_handler(event, context):
     # Change this location to New York, Manhattan.
     locations = ["manhattan", "new york"]
     if event['data_origin'] == 'yelp':
-        restaurantIterations = 1
+        restaurantIterations = 8
         for cuisine in cuisines:
             for i in range(restaurantIterations):
                 for loc in locations:
