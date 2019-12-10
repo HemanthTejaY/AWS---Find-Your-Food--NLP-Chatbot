@@ -3,7 +3,7 @@
 ##### [Link To Web Application](http://restuarantchatbot.s3-website-us-east-1.amazonaws.com/)
 ## ABOUT
 This project is a part of the project component for the course- Cloud Computing and Applications (CS-GY 9223, New York University) 
-## Authors: Indraneel Ray & Hemanth Teja
+###### Authors: Indraneel Ray & Hemanth Teja
 ## FRONTEND (HTML, JavaScript, CSS)
 The frontend is hosted in AWS S3 and provides a web-app user interface to interact with the chat bot.Many  open source libraries and frameworks were used to design the UI/UX of the bot. A similar template of my web-application can be found at: https://bootsnipp.com/snippets/exR5v
 ## DESCRIPTION
