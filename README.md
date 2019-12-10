@@ -1,5 +1,6 @@
 # Find-Your-Food (Dining-Chatbot)
-##### Check out the DEMO at - https://youtu.be/KC22Z0-sENM
+##### [Video Demo LinK](https://youtu.be/KC22Z0-sENM)
+
 ###### Check out the web-application here: http://restuarantchatbot.s3-website-us-east-1.amazonaws.com/
 ## ABOUT
 This project is a part of the project component for the course- Cloud Computing and Applications (CS-GY 9223, New York University) 
